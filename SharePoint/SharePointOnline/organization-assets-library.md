@@ -34,11 +34,14 @@ If your organization needs to store and manage files for all your users to use, 
 - **Office templates**. When a user selects to create a new Word document, Excel workbook, or PowerPoint presentation (from PowerPoint for the web or the Word, Excel, or PowerPoint desktop app), the user can select the tab for your organization to see the templates. (In PowerPoint for the web, the templates aren't available from the New menu. Users who want to create a file from a template need to go to the PowerPoint start page and select Office Template Library).  
 
     ![Selecting a template in PowerPoint](media/office-template-library.png)
+    
+- **Organization fonts**. When a user is editing a PowerPoint presentation, the user can select and use their TTF or OTF tyle custom organization font from the font dropdown.   
 
     > [!NOTE]
     > - For the organization assets library to appear to a user in PowerPoint on the web, the user must be assigned a license to Office 365 E3 or E5. Users who use the Word, Excel, or PowerPoint desktop app also need Microsoft 365 Apps Version 2002 or later. 
     > - Allow up to 24 hours for the organization assets library to appear to a user in the desktop apps.
     > - The files uploaded to the library must be in the template format .xltx. ([learn how to save an Excel workbook as a template](https://support.microsoft.com/office/save-a-workbook-as-a-template-58c6625a-2c0b-4446-9689-ad8baec39e1e)), .dotx. ([learn how to save a Word document in this format](https://support.microsoft.com/topic/create-a-template-86a1d089-5ae2-4d53-9042-1191bce57deb)), or .potx. ([learn how to save a PowerPoint file in this format](https://support.microsoft.com/office/ee4429ad-2a74-4100-82f7-50f8169c8aca)).
+    > - Cloud-based custom organization font support is currently only available for PowerPoint for the web. Support on other PowerPoint endpoints is coming soon. To use custom fonts on the PowerPoint Desktop applications, ([download and install custom fonts on your local machine](https://support.microsoft.com/en-us/topic/download-and-install-custom-fonts-to-use-with-office-0ee09e74-edc1-480c-81c2-5cf9537c70ce)).
 
 
 ## Use Microsoft PowerShell to specify a library as an organization assets library
@@ -62,18 +65,27 @@ If your organization needs to store and manage files for all your users to use, 
 6. Run the following command to designate the document library as an organization assets library:
   
     ```PowerShell
-    Add-SPOOrgAssetsLibrary -LibraryUrl <URL> [-ThumbnailUrl <URL>] [-OrgAssetType <ImageDocumentLibrary or OfficeTemplateLibrary>] [-CdnType <Public or Private>]
+    Add-SPOOrgAssetsLibrary -LibraryUrl <URL> [-ThumbnailUrl <URL>] [-OrgAssetType <ImageDocumentLibrary or OfficeTemplateLibrary or OfficeFontLibrary>] [-CdnType <Public or Private>]
     ```
 
-LibraryURL is the absolute URL of the library to be designated as a central location for organization assets. ThumbnailURL is the URL for the image file that you want to appear in the card's background in the file picker; this image must be on the same site as the library. The name publicly displayed for the library will be the name of the library on the SharePoint site. OrgAssetType is either ImageDocumentLibrary or OfficeTemplateLibrary. If you don't specify the OrgAssetType, the library will be designated as an image library by default. If you don't specify the CdnType, it will enable a private CDN by default. [Learn more about the Add-SPOOrgAssetsLibrary cmdlet](/powershell/module/sharepoint-online/add-spoorgassetslibrary).
+LibraryURL is the absolute URL of the library to be designated as a central location for organization assets. ThumbnailURL is the URL for the image file that you want to appear in the card's background in the file picker; this image must be on the same site as the library. The name publicly displayed for the library will be the name of the library on the SharePoint site. OrgAssetType is either ImageDocumentLibrary or OfficeTemplateLibrary. If you don't specify the OrgAssetType, the library will be designated as an image library by default. If you don't specify the CdnType, it will enable a private CDN by default. You **must** specify a public CDN when designating a font library. [Learn more about the Add-SPOOrgAssetsLibrary cmdlet](/powershell/module/sharepoint-online/add-spoorgassetslibrary).
 
-Example: 
+Examples: 
 
 > `Add-SPOOrgAssetsLibrary -LibraryURL https://contoso.sharepoint.com/sites/branding/Assets -ThumbnailURL https://contoso.sharepoint.com/sites/branding/Assets/contosologo.jpg -OrgAssetType ImageDocumentLibrary`
-
+> 
+> `Add-SPOOrgAssetsLibary -LibraryUrl https://constosofonts.sharepoint.com/FontLibrary -OrgAssetType OfficeFontLibary -CdnType Public`
 
 > [!NOTE]
 > Adding an organization assets library will enable a content delivery network (CDN) for your organization to provide fast and reliable performance for shared assets. You'll be prompted to enable a CDN for each organization asset library you add. For more information, see [Content Delivery Networks (CDNs)](/office365/enterprise/content-delivery-networks).
+
+7. **Only when adding a custom organization font**, run the following extra command to upload your font library to its URL and to generate the font catalog:
+
+    ```PowerShell
+    Set-SPOCustomFontCatalog -FontFolder <Local Font Folder Location>  -LibraryUrl <Document Library SharePoint URL>
+    ```
+Example:
+> `Set-SPOCustomFontCatalog -FontFolder “C:\ProgramData\Fonts” -LibraryUrl “https://contosofonts.sharepoint.com/FontLibary”`
 
 ## Related commands
 
